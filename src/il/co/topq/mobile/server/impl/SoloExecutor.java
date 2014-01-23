@@ -14,7 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -32,6 +34,7 @@ import android.widget.TextView;
 import com.jayway.android.robotium.solo.By;
 import com.jayway.android.robotium.solo.Solo;
 import com.jayway.android.robotium.solo.SoloEnhanced;
+import com.jayway.android.robotium.solo.WebElement;
 
 /**
  * 
@@ -167,6 +170,8 @@ public class SoloExecutor {
 			response = enterTextInWebElement(request.getParams());
 		} else if (commandStr.equals("getSystemTime")) {
 			response = getSystemTime(request.getParams());
+		} else if (commandStr.equals("getCurrentWebElements")) {
+			response = getCurrentWebElements(request.getParams());
 		}
 		response.setOriginalCommand(request.getCommand());
 		response.setParams(request.getParams());
@@ -174,6 +179,32 @@ public class SoloExecutor {
 		Log.i(TAG, "The Result is:" + result);
 		return result;
 
+	}
+	
+	private CommandResponse getCurrentWebElements(String[] params) {
+		CommandResponse result = new CommandResponse();
+		result.setOriginalCommand("getCurrentWebElements");
+		try {
+			List<WebElement> elements = solo.getCurrentWebElements(); 
+			JSONArray jsonElementArray = new JSONArray();
+			for (int i=0; i<elements.size() ;i++) {
+				JSONObject jsonElement = new JSONObject();
+				jsonElement.put("tag", elements.get(i).getTagName());
+				jsonElement.put("className", elements.get(i).getClassName());
+				jsonElement.put("id", elements.get(i).getId());
+				jsonElement.put("text", elements.get(i).getText());
+				jsonElement.put("x", elements.get(i).getLocationX());
+				jsonElement.put("y", elements.get(i).getLocationY());
+			}
+		
+			result.setResponse(jsonElementArray.toString());
+			result.setSucceeded(true);
+
+		} catch (Throwable e) {
+			result = handleException(result.getOriginalCommand(), e);
+		}
+
+		return result;
 	}
 
 	private CommandResponse getSystemTime(String[] params) {
