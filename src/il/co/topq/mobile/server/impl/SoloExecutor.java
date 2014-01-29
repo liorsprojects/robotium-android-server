@@ -182,10 +182,12 @@ public class SoloExecutor {
 	}
 	
 	private CommandResponse getCurrentWebElements(String[] params) {
+		Log.d(TAG, "about to get webelements");
 		CommandResponse result = new CommandResponse();
 		result.setOriginalCommand("getCurrentWebElements");
 		try {
 			List<WebElement> elements = solo.getCurrentWebElements(); 
+			Log.d(TAG, "after get webelements element count: " + elements.size());
 			JSONArray jsonElementArray = new JSONArray();
 			for (int i=0; i<elements.size() ;i++) {
 				JSONObject jsonElement = new JSONObject();
@@ -195,8 +197,11 @@ public class SoloExecutor {
 				jsonElement.put("text", elements.get(i).getText());
 				jsonElement.put("x", elements.get(i).getLocationX());
 				jsonElement.put("y", elements.get(i).getLocationY());
+				jsonElementArray.put(jsonElement);
 			}
-		
+			
+			Log.d(TAG, jsonElementArray.toString());
+			
 			result.setResponse(jsonElementArray.toString());
 			result.setSucceeded(true);
 
